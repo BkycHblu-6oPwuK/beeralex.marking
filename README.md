@@ -24,7 +24,9 @@ composer require beeralex/beeralex.marking
 1. Установить модуль beeralex.core
 2. Установить этот модуль
 3. Получить документ подписанный УКЭП
-4. Заполнить настройки модуля в Beeralex\Marking\Options, oauthKey - любой документ подписанный с помощью УКЭП в base64
+4. Заполнить настройки модуля в админке, oauthKey - любой документ подписанный с помощью УКЭП в base64
+
+Для использования разных токенов наследуйте обработчики касс и используйте трейт - ``` Beeralex\Marking\CashboxSettingsTrait ```, который добавит настройки oauth ключа, токена и Fiscal Drive Number в настройки обработчика кассы. 
 
 # Использование
 
@@ -35,10 +37,14 @@ try {
     /** @var \Beeralex\Marking\Entity\Codes\CodesCheckResult $checkResult */
     $codes = ["mark_code1", "mark_code2"];
     $checkResult = (new \Beeralex\Marking\Services\CodesCheck())->check($codes);
+    // или
+    Itb\Marking\CodesCheckFactory::getByOrder($order)|getByCashbox($cashbox)|getDefault()
 } catch (\Exception $e) {
     // Вероятнее всего ошибка в запросе - коды не проверены.
 }
 ```
+Itb\Marking\CodesCheckFactory::getByOrder принимает объект заказа, на основе отгрузки находится подходящая касса применяя исключения из админки и вызывается getByCashbox
+Itb\Marking\CodesCheckFactory::getByCashbox принимает объект обработчика кассы, и находит заполненные настройки в кассе (TOKEN, FISCAL_DRIVE_NUMBER, OAUTH_KEY), эти значения используются вместо дефолтных из настроек модуля
 
 При ошибках логирование идет в ```{dir_module}/logs/``` при включенном логировании в ```Beeralex\Marking\Options::$logsEnable```
 

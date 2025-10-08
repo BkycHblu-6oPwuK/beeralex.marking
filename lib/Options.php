@@ -18,15 +18,12 @@ final class Options extends AbstractOptions
 
     protected function mapOptions(array $options): void
     {
-        $this->oauthKey = $options['oauth_key'] ?? '';
-        $this->token = $options['token'] ?? '';
-        $this->defaultFiscalDriveNumber = $options['default_fdn'] ?? '';
-        $this->isTest = ($options['is_test'] ?? 'N') === 'Y';
-        $this->logsEnable = ($options['logs_enable'] ?? 'Y') === 'Y';
-
-        $this->baseUrl = $this->isTest
-            ? 'https://markirovka.sandbox.crptech.ru'
-            : 'https://cdn.crpt.ru';
+        $this->oauthKey = $options['MARKING_OAUTH_KEY'];
+        $this->token = $options['MARKING_TOKEN'];
+        $this->defaultFiscalDriveNumber = $options['MARKING_DEFAULT_FISKAL_DRIVE_NUMBER'];
+        $this->isTest = $options['MARKING_TEST'] === 'Y';
+        $this->logsEnable = $options['MARKING_LOGS'] === 'Y';
+        $this->baseUrl = $this->isTest ? $options['MARKING_BASE_TEST_URL'] : $options['MARKING_BASE_PROD_URL'];
     }
 
     public function getModuleId(): string

@@ -11,17 +11,33 @@ use Psr\Log\LoggerInterface;
 class AuthService extends ApiService
 {
     private ?string $token = null;
+    private ?string $oauthKey = null;
     private readonly bool $authByApi;
     private CacheSettingsDto $cacheSettings;
 
-    public function __construct(?LoggerInterface $logger = null)
+    public function __construct(?LoggerInterface $logger = null, ?string $token = null, ?string $oauthKey = null)
     {
         parent::__construct($logger);
-        $this->authByApi = $this->options->oauthKey !== '';
-        if(!$this->authByApi){
-            $this->token = $this->options->token;
+        if($oauthKey) {
+            $this->setOauthKey($oauthKey);
+        } else {
+            $this->setTokenDefault($token ?? $this->options->token);
         }
         $this->cacheSettings = new CacheSettingsDto(1800, 'marking_access_token', '/marking/token');
+    }
+
+    public function setOauthKey(string $oauthKey)
+    {
+        $this->oauthKey = $oauthKey;
+        $this->authByApi = true;
+        return $this;
+    }
+
+    public function setTokenDefault(string $token)
+    {
+        $this->token = $token;
+        $this->authByApi = false;
+        return $this;
     }
 
     /** 
@@ -98,7 +114,7 @@ class AuthService extends ApiService
     private function getData(): mixed
     {
         return Json::encode([
-            'data' => $this->options->oauthKey,
+            'data' => $this->oauthKey ?? $this->options->oauthKey,
         ]);
     }
 }

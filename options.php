@@ -5,6 +5,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
 use Beeralex\Core\Config\Tab;
 use Beeralex\Core\Config\TabsBuilder;
+use Beeralex\Core\Modules\Options\Fields\Checkbox;
+use Beeralex\Core\Modules\Options\Fields\Input;
 
 $request = HttpApplication::getInstance()->getContext()->getRequest();
 $module_id = htmlspecialcharsbx($request["mid"] != "" ? $request["mid"] : $request["id"]);
@@ -16,6 +18,14 @@ if ($POST_RIGHT < "S") {
 Loader::includeModule($module_id);
 
 $accessTab = new Tab("edit2", Loc::getMessage("MAIN_TAB_RIGHTS"), Loc::getMessage("MAIN_TAB_TITLE_RIGHTS"));
+$mainTab = new Tab("edit1", "Настройки", "Настройки");
+$mainTab->addField(new Input('MARKING_OAUTH_KEY', 'OAUTH_KEY - любой документ подписанный с помощью УКЭП в base64'));
+$mainTab->addField(new Input('MARKING_TOKEN', 'токен полученный через лк, берется если не заполнен OAUTH_KEY'));
+$mainTab->addField(new Input('MARKING_DEFAULT_FISKAL_DRIVE_NUMBER', 'ФН (Fiscal Drive Number)'));
+$mainTab->addField(new Input('MARKING_BASE_TEST_URL', 'Базовый тестовый url'));
+$mainTab->addField(new Input('MARKING_BASE_PROD_URL', 'Базовый боевой url'));
+$mainTab->addField(new Checkbox('MARKING_TEST', 'Тестовый режим'));
+$mainTab->addField(new Checkbox('MARKING_LOGS', 'Включить логирование'));
 $tabsBuilder = (new TabsBuilder())->addTab($mainTab)->addTab($accessTab);
 
 $tabs = $tabsBuilder->getTabs();

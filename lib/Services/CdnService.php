@@ -15,9 +15,9 @@ class CdnService extends AuthService
 {
     private CacheSettingsDto $cacheSettings;
 
-    public function __construct(?LoggerInterface $logger = null)
+    public function __construct(?LoggerInterface $logger = null, ?string $token = null, ?string $oauthKey = null)
     {
-        parent::__construct($logger);
+        parent::__construct($logger, $token, $oauthKey);
         $this->cacheSettings = new CacheSettingsDto(3600 * 6, 'marking_cdn', '/marking/cdn');
     }
 
