@@ -18,13 +18,13 @@ class beeralex_marking extends CModule
             $this->MODULE_ID           = 'beeralex.marking';
             $this->MODULE_VERSION      = $arModuleVersion['VERSION'];
             $this->MODULE_VERSION_DATE = $arModuleVersion['VERSION_DATE'];
-            $this->MODULE_NAME         = Loc::getMessage('ITB_MARKING_NAME');
-            $this->MODULE_DESCRIPTION  = Loc::getMessage('ITB_MARKING_DESCRIPTION');
+            $this->MODULE_NAME         = Loc::getMessage('BEERALEX_MARKING_NAME');
+            $this->MODULE_DESCRIPTION  = Loc::getMessage('BEERALEX_MARKING_DESCRIPTION');
             $this->PARTNER_NAME = 'Beeralex';
             $this->PARTNER_URI = '#';
         } else {
             CAdminMessage::showMessage(
-                Loc::getMessage('ITB_MARKING_FILE_NOT_FOUND') . ' version.php'
+                Loc::getMessage('BEERALEX_MARKING_FILE_NOT_FOUND') . ' version.php'
             );
         }
     }
@@ -70,7 +70,7 @@ class beeralex_marking extends CModule
         $request = $context->getRequest();
         Loader::includeModule($this->MODULE_ID);
         if ($request['step'] < 2) {
-            $APPLICATION->IncludeAdminFile(Loc::getMessage('ITB_FAVORITE_UNINSTALL_TITLE'), __DIR__ . '/unstep1.php');
+            $APPLICATION->IncludeAdminFile(Loc::getMessage('BEERALEX_MARKING_UNINSTALL_TITLE'), __DIR__ . '/unstep1.php');
         } else {
             if ($request['savedata'] !== 'Y') {
                 $this->UnInstallDB();
@@ -78,7 +78,7 @@ class beeralex_marking extends CModule
 
             \Bitrix\Main\ModuleManager::unRegisterModule($this->MODULE_ID);
 
-            $APPLICATION->IncludeAdminFile(Loc::getMessage('ITB_FAVORITE_UNISTALL_TITLE'), __DIR__ . '/unstep2.php');
+            $APPLICATION->IncludeAdminFile(Loc::getMessage('BEERALEX_MARKING_UNISTALL_TITLE'), __DIR__ . '/unstep2.php');
         }
     }
 }

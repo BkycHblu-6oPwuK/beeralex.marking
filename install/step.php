@@ -9,10 +9,10 @@ if (!check_bitrix_sessid()) {
 
 if ($errorException = $APPLICATION->getException()) {
     CAdminMessage::showMessage(
-        Loc::getMessage('ITB_MARKING_INSTALL_FAILED') . ': '.$errorException->GetString()
+        Loc::getMessage('BEERALEX_MARKING_INSTALL_FAILED') . ': '.$errorException->GetString()
     );
 } else {
     CAdminMessage::showNote(
-        Loc::getMessage('ITB_MARKING_INSTALL_SUCCESS')
+        Loc::getMessage('BEERALEX_MARKING_INSTALL_SUCCESS')
     );
 }
