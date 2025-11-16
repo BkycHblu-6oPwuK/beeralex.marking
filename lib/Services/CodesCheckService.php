@@ -1,40 +1,33 @@
 <?php
-
+declare(strict_types=1);
 namespace Beeralex\Marking\Services;
 
+use Beeralex\Core\Exceptions\ApiTooManyRequestsException;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
 use Beeralex\Marking\CodeCheckRepository;
 use Beeralex\Marking\Entity\Cdn\Host;
 use Beeralex\Marking\Entity\Cdn\Hosts;
 use Beeralex\Marking\Entity\Codes\CodesCheckResult;
-use Beeralex\Marking\Exceptions\TooManyRequestsException;
+use Beeralex\Marking\Exceptions\CdnTemporarilyUnavailableException;
 use Beeralex\Marking\Exceptions\TransborderCheckServiceUnavailableException;
-use Psr\Log\LoggerInterface;
 
-class CodesCheck extends AuthService
+class CodesCheckService extends AuthService
 {
     protected readonly CdnService $cdnService;
     protected readonly CodeCheckRepository $codeCheckRepository;
     protected string $fiscalDriveNumber;
 
     public function __construct(
-        ?LoggerInterface $logger = null,
-        ?CdnService $cdnService = null,
-        ?CodeCheckRepository $codeCheckRepository = null,
+        CdnService $cdnService,
+        CodeCheckRepository $codeCheckRepository,
         ?string $token = null,
         ?string $oauthKey = null,
         ?string $fiscalDriveNumber = null
     ) {
-        if (!$cdnService) {
-            $cdnService = new CdnService($logger, $token, $oauthKey);
-        }
-        if (!$codeCheckRepository) {
-            $codeCheckRepository = new CodeCheckRepository();
-        }
         $this->cdnService = $cdnService;
         $this->codeCheckRepository = $codeCheckRepository;
-        parent::__construct($logger, $token, $oauthKey);
+        parent::__construct($token, $oauthKey);
         $this->fiscalDriveNumber = $fiscalDriveNumber ?? $this->options->defaultFiscalDriveNumber;
     }
 
@@ -56,12 +49,12 @@ class CodesCheck extends AuthService
             $result = $this->getResultCheckCodes($this->cdnService->getCdn(), $codes);
             $this->saveInDb($result);
             return $result;
-        } catch (TooManyRequestsException | CdnTemporarilyUnavailableException | TransborderCheckServiceUnavailableException $e) {
+        } catch (ApiTooManyRequestsException | CdnTemporarilyUnavailableException | TransborderCheckServiceUnavailableException $e) {
             $result = $this->getResultCheckCodes($this->cdnService->getCdn(true), $codes);
             $this->saveInDb($result);
             return $result;
         } catch (\Exception $e) {
-            $this->log(fn() => $this->logger->error("Error checking codes: " . $e->getMessage(), $codes));
+            $this->log("Error checking codes: " . $e->getMessage());
             throw $e;
         }
     }
@@ -69,7 +62,7 @@ class CodesCheck extends AuthService
     protected function getResultCheckCodes(Hosts $hosts, array $codes): CodesCheckResult
     {
         if ($hosts->transborderServiceUnavailable) {
-            $this->log(fn() => $this->logger->warning("Cross-border code verification service is not available.", $codes));
+            $this->log("Cross-border code verification service is not available.");
             return CodesCheckResult::transborderUnavailable($codes);
         }
         $lastException  = null;
@@ -80,7 +73,7 @@ class CodesCheck extends AuthService
                     return new CodesCheckResult($response);
                 }
             } catch (\Exception $e) {
-                $this->log(fn() => $this->logger->warning("error checking code on host - {$host->url}"));
+                $this->log("error checking code on host - {$host->url}");
                 $lastException  = $e;
             }
         }
@@ -97,7 +90,7 @@ class CodesCheck extends AuthService
         try {
             $this->codeCheckRepository->save($result);
         } catch (\Exception $e) {
-            $this->log(fn() => $this->logger->error("error in saveInDb.", ['message' => $e->getMessage(), 'result' => $result]));
+            $this->log("error in saveInDb: " . $e->getMessage());
             throw $e;
         }
     }

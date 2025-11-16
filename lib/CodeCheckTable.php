@@ -2,15 +2,15 @@
 
 namespace Beeralex\Marking;
 
-use Bitrix\Main\Entity\StringField;
-use Bitrix\Main\Entity\TextField;
-use Bitrix\Main\Entity\DatetimeField;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Type\DateTime;
 use Beeralex\Core\Traits\TableManagerTrait;
+use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Main\ORM\Fields\TextField;
 
 class CodeCheckTable extends DataManager
 {

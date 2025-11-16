@@ -1,12 +1,11 @@
 <?php
-
+declare(strict_types=1);
 namespace Beeralex\Marking\Services;
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
 use Beeralex\Core\Dto\CacheSettingsDto;
-use Beeralex\Marking\Exceptions\ClientUnathorizedException;
-use Psr\Log\LoggerInterface;
+use Beeralex\Core\Exceptions\ApiClientUnauthorizedException;
 
 class AuthService extends ApiService
 {
@@ -15,9 +14,9 @@ class AuthService extends ApiService
     private readonly bool $authByApi;
     private CacheSettingsDto $cacheSettings;
 
-    public function __construct(?LoggerInterface $logger = null, ?string $token = null, ?string $oauthKey = null)
+    public function __construct(?string $token = null, ?string $oauthKey = null)
     {
-        parent::__construct($logger);
+        parent::__construct();
         if($oauthKey) {
             $this->setOauthKey($oauthKey);
         } else {
@@ -69,7 +68,7 @@ class AuthService extends ApiService
 
         try {
             return $callback();
-        } catch (ClientUnathorizedException) {
+        } catch (ApiClientUnauthorizedException) {
             $this->refreshToken();
             return $callback();
         }

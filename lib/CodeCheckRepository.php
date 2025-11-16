@@ -1,13 +1,20 @@
 <?php
+declare(strict_types=1);
 
 namespace Beeralex\Marking;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Web\Json;
+use Beeralex\Core\Repository\Repository;
 use Beeralex\Marking\Entity\Codes\CodesCheckResult;
 
-class CodeCheckRepository
+class CodeCheckRepository extends Repository
 {
+    public function __construct(bool $useDecompose = false)
+    {
+        parent::__construct(CodeCheckTable::class, $useDecompose);
+    }
+
     /**
      * @return null|CodesCheckResult[] сгруппированы по id запросов для каждого кода
      */
@@ -17,7 +24,7 @@ class CodeCheckRepository
             return null;
         }
 
-        $result = CodeCheckTable::getList([
+        $result = $this->getList([
             'filter' => ['=CIS' => $cisList],
             'select' => [
                 'ID',
@@ -29,7 +36,7 @@ class CodeCheckRepository
                 'RESPONSE_RESPONSE_CODE' => 'RESPONSE.RESPONSE_CODE',
                 'RESPONSE_DESCRIPTION' => 'RESPONSE.DESCRIPTION',
                 'RESPONSE_TRANSBORDER_SERVICE_UNAVAILABLE' => 'RESPONSE.TRANSBORDER_SERVICE_UNAVAILABLE',
-            ]
+            ],
         ]);
 
         $groupedByResponse = [];
@@ -77,14 +84,13 @@ class CodeCheckRepository
         return $results;
     }
 
-
     public function findByCis(string $cis): ?CodesCheckResult
     {
-        if (empty($cis)) {
+        if ($cis === '') {
             return null;
         }
 
-        $row = CodeCheckTable::getList([
+        $row = $this->getList([
             'filter' => ['=CIS' => $cis],
             'select' => [
                 'ID',
@@ -120,13 +126,16 @@ class CodeCheckRepository
         ]);
     }
 
-    public function save(CodesCheckResult $result): void
+    /**
+     * @param CodesCheckResult $result
+     */
+    public function save(array|object $result): int
     {
         $connection = Application::getConnection();
         $connection->startTransaction();
 
         try {
-            $existingRows = CodeCheckTable::getList([
+            $existingRows = $this->getList([
                 'filter' => ['=CIS' => array_keys($result->codes)],
                 'select' => ['ID', 'CIS', 'RESPONSE_ID'],
             ]);
@@ -140,6 +149,7 @@ class CodeCheckRepository
                     $responseId = (int)$row['RESPONSE_ID'];
                 }
             }
+
             if ($responseId === null) {
                 $addResult = CodeCheckResponseTable::add([
                     'RESPONSE_CODE' => $result->code,
@@ -188,6 +198,7 @@ class CodeCheckRepository
             }
 
             $connection->commitTransaction();
+            return $responseId;
         } catch (\Throwable $e) {
             $connection->rollbackTransaction();
             throw $e;

@@ -1,23 +1,22 @@
 <?php
-
+declare(strict_types=1);
 namespace Beeralex\Marking\Services;
 
 use Bitrix\Main\Web\Uri;
 use Beeralex\Core\Dto\CacheSettingsDto;
+use Beeralex\Core\Exceptions\ApiTooManyRequestsException;
 use Beeralex\Marking\Entity\Cdn\Host;
 use Beeralex\Marking\Entity\Cdn\Hosts;
 use Beeralex\Marking\Exceptions\CdnTemporarilyUnavailableException;
-use Beeralex\Marking\Exceptions\TooManyRequestsException;
 use Beeralex\Marking\Exceptions\TransborderCheckServiceUnavailableException;
-use Psr\Log\LoggerInterface;
 
 class CdnService extends AuthService
 {
     private CacheSettingsDto $cacheSettings;
 
-    public function __construct(?LoggerInterface $logger = null, ?string $token = null, ?string $oauthKey = null)
+    public function __construct(?string $token = null, ?string $oauthKey = null)
     {
-        parent::__construct($logger, $token, $oauthKey);
+        parent::__construct($token, $oauthKey);
         $this->cacheSettings = new CacheSettingsDto(3600 * 6, 'marking_cdn', '/marking/cdn');
     }
 
@@ -30,7 +29,7 @@ class CdnService extends AuthService
             $hosts = $this->getHosts();
             $this->checkAllCdn($hosts);
             if ($hosts->isAllBlocked()) {
-                $this->log(fn() => $this->logger->warning("All CDN hosts are blocked, we are trying to get and check again."));
+                $this->log("All CDN hosts are blocked, we are trying to get and check again.");
                 $hosts = $this->getHosts();
                 $this->checkAllCdn($hosts);
             }
@@ -48,14 +47,14 @@ class CdnService extends AuthService
             try {
                 $this->checkCdn($host);
             } catch (TransborderCheckServiceUnavailableException $e) {
-                $this->log(fn() => $this->logger->warning("Cross-border code verification service is unavailable: " . $e->getMessage()));
+                $this->log("Cross-border code verification service is unavailable: " . $e->getMessage());
                 $hosts->transborderServiceUnavailable = true;
                 break;
-            } catch (TooManyRequestsException | CdnTemporarilyUnavailableException $e) {
-                $this->log(fn() => $this->logger->warning("Host {$host->url} is blocked: " . $e->getMessage()));
+            } catch (ApiTooManyRequestsException | CdnTemporarilyUnavailableException $e) {
+                $this->log("Host {$host->url} is blocked: " . $e->getMessage());
                 $host->setBlocked();
             } catch (\Throwable $e) {
-                $this->log(fn() => $this->logger->warning("Host problem {$host->url}: " . $e->getMessage()));
+                $this->log("Host problem {$host->url}: " . $e->getMessage());
             }
         }
     }
@@ -75,7 +74,7 @@ class CdnService extends AuthService
     {
         try {
             $this->attemptCheckCdn($host);
-        } catch (TooManyRequestsException | CdnTemporarilyUnavailableException | TransborderCheckServiceUnavailableException) {
+        } catch (ApiTooManyRequestsException | CdnTemporarilyUnavailableException | TransborderCheckServiceUnavailableException) {
             $this->attemptCheckCdn($host);
         }
     }

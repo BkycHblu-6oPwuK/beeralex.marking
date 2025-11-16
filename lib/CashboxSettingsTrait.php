@@ -1,6 +1,6 @@
 <?php
-
-namespace Itb\Marking;
+declare(strict_types=1);
+namespace Beeralex\Marking;
 
 trait CashboxSettingsTrait
 {

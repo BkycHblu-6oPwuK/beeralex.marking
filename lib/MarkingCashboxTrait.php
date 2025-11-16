@@ -1,17 +1,11 @@
 <?php
-
+declare(strict_types=1);
 namespace Beeralex\Marking;
 
 use Bitrix\Sale\Cashbox\Check;
 use Beeralex\Marking\CodeCheckRepository;
 use Beeralex\Marking\Entity\Codes\CodesCheckResult;
-use Beeralex\Marking\Services\CodesCheck;
-
-Loader::includeModule('sale');
-
-if (!Loader::includeModule('beeralex.marking')) {
-    throw new \Exception("the code checking module is not installed");
-}
+use Beeralex\Marking\Factory\CodesCheckServiceFactory;
 
 trait MarkingCashboxTrait
 {
@@ -32,10 +26,10 @@ trait MarkingCashboxTrait
         }
 
         if (!empty($codes)) {
-            $results = (new CodeCheckRepository)->findByCisList($codes);
+            $results = service(CodeCheckRepository::class)->findByCisList($codes);
 
             if (!$results) {
-                $results = [(new CodesCheck())->check($codes)];
+                $results = [service(CodesCheckServiceFactory::class)->createDefault()->check($codes)];
             }
 
             foreach ($results as $result) {

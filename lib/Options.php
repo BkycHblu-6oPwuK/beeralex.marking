@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace Beeralex\Marking;
 
 use Beeralex\Core\Config\AbstractOptions;
