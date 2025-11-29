@@ -4,7 +4,7 @@ namespace Beeralex\Marking\Services;
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
-use Beeralex\Core\Dto\CacheSettingsDto;
+use Beeralex\Core\Dto\CacheSettingsDTO;
 use Beeralex\Core\Exceptions\ApiClientUnauthorizedException;
 
 class AuthService extends ApiService
@@ -12,7 +12,7 @@ class AuthService extends ApiService
     private ?string $token = null;
     private ?string $oauthKey = null;
     private readonly bool $authByApi;
-    private CacheSettingsDto $cacheSettings;
+    private CacheSettingsDTO $cacheSettings;
 
     public function __construct(?string $token = null, ?string $oauthKey = null)
     {
@@ -22,7 +22,7 @@ class AuthService extends ApiService
         } else {
             $this->setTokenDefault($token ?? $this->options->token);
         }
-        $this->cacheSettings = new CacheSettingsDto(1800, 'marking_access_token', '/marking/token');
+        $this->cacheSettings = new CacheSettingsDTO(1800, 'marking_access_token', '/marking/token');
     }
 
     public function setOauthKey(string $oauthKey)

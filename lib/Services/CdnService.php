@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace Beeralex\Marking\Services;
 
 use Bitrix\Main\Web\Uri;
-use Beeralex\Core\Dto\CacheSettingsDto;
+use Beeralex\Core\Dto\CacheSettingsDTO;
 use Beeralex\Core\Exceptions\ApiTooManyRequestsException;
 use Beeralex\Marking\Entity\Cdn\Host;
 use Beeralex\Marking\Entity\Cdn\Hosts;
@@ -12,12 +12,12 @@ use Beeralex\Marking\Exceptions\TransborderCheckServiceUnavailableException;
 
 class CdnService extends AuthService
 {
-    private CacheSettingsDto $cacheSettings;
+    private CacheSettingsDTO $cacheSettings;
 
     public function __construct(?string $token = null, ?string $oauthKey = null)
     {
         parent::__construct($token, $oauthKey);
-        $this->cacheSettings = new CacheSettingsDto(3600 * 6, 'marking_cdn', '/marking/cdn');
+        $this->cacheSettings = new CacheSettingsDTO(3600 * 6, 'marking_cdn', '/marking/cdn');
     }
 
     public function getCdn(bool $isRefresh = false): Hosts
