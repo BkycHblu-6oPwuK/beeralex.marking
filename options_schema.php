@@ -40,13 +40,13 @@ return Schema::make()
             $tab->checkbox(
                 'MARKING_TEST',
                 'Тестовый режим',
-                checked: false
+                checkedDefault: false
             );
 
             $tab->checkbox(
                 'MARKING_LOGS',
                 'Включить логирование',
-                checked: true
+                checkedDefault: true
             );
         }
     );
